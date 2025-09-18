@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth");
+const asyncHandler_1 = require("../middleware/asyncHandler");
+const apikey_controller_1 = require("../controllers/apikey.controller");
+const router = (0, express_1.Router)();
+router.get("/", auth_1.apiKeyAuth, (0, asyncHandler_1.asyncHandler)(apikey_controller_1.listMyApiKeys));
+router.post("/", auth_1.apiKeyAuth, (0, asyncHandler_1.asyncHandler)(apikey_controller_1.createMyApiKey));
+router.post("/:id/revoke", auth_1.apiKeyAuth, (0, asyncHandler_1.asyncHandler)(apikey_controller_1.revokeMyApiKey));
+exports.default = router;

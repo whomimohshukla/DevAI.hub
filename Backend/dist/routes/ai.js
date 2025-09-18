@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth");
+const rateLimit_1 = require("../middleware/rateLimit");
+const asyncHandler_1 = require("../middleware/asyncHandler");
+const ai_controller_1 = require("../controllers/ai.controller");
+const router = (0, express_1.Router)();
+router.post("/text", auth_1.apiKeyAuth, rateLimit_1.basicRateLimit, (0, asyncHandler_1.asyncHandler)(ai_controller_1.textCompletion));
+router.post("/image", auth_1.apiKeyAuth, rateLimit_1.basicRateLimit, (0, asyncHandler_1.asyncHandler)(ai_controller_1.imageGenerate));
+router.post("/speech", auth_1.apiKeyAuth, rateLimit_1.basicRateLimit, (0, asyncHandler_1.asyncHandler)(ai_controller_1.speech));
+exports.default = router;

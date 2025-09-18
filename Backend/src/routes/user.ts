@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { apiKeyAuth } from "../middleware/auth";
 import { asyncHandler } from "../middleware/asyncHandler";
+import { clerkRequireAuth, syncClerkUser } from "../middleware/clerk";
 import { getMe } from "../controllers/user.controller";
 
 const router = Router();
 
-router.get("/me", apiKeyAuth, asyncHandler(getMe));
+router.get("/me", clerkRequireAuth, syncClerkUser, asyncHandler(getMe));
 
 export default router;

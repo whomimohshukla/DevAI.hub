@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
-import { adminOnly } from "../middleware/admin";
-import { apiKeyAuth } from "../middleware/auth";
+import { clerkRequireAuth, clerkAdminOnly, syncClerkUser } from "../middleware/clerk";
 import { createProvider, deleteProvider, listProviders, updateProvider } from "../controllers/provider.controller";
 
 const router = Router();
 
-router.use(apiKeyAuth, adminOnly);
+router.use(clerkRequireAuth, syncClerkUser, clerkAdminOnly);
 
 router.get("/", asyncHandler(listProviders));
 router.post("/", asyncHandler(createProvider));

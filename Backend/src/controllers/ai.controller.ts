@@ -7,6 +7,8 @@ import { RequestLog } from "../models/requestlog.model";
 import { openaiImageGenerate, openaiSpeechToText, openaiTextCompletion, openaiTextToSpeech } from "../services/providers/openai";
 import { fetchBuffer } from "../utils/http";
 
+
+// handle text completion requests
 export const textCompletion = async (req: AuthedRequest, res: Response) => {
   const started = Date.now();
   const { prompt, model, params } = req.body || {};
@@ -58,6 +60,8 @@ export const textCompletion = async (req: AuthedRequest, res: Response) => {
   return res.status(200).json({ text: resultText, tokensUsed, latencyMs, model: pm.modelName, provider: provider.name });
 };
 
+
+// handle image generation requests
 export const imageGenerate = async (req: AuthedRequest, res: Response) => {
   const started = Date.now();
   const { prompt, model, params } = req.body || {};
@@ -106,6 +110,8 @@ export const imageGenerate = async (req: AuthedRequest, res: Response) => {
   return res.status(200).json({ imageBase64, latencyMs, model: pm.modelName, provider: provider.name });
 };
 
+
+// handle speech-to-text (stt) and text-to-speech (tts) requests
 export const speech = async (req: AuthedRequest, res: Response) => {
   const started = Date.now();
   const { action } = req.body || {};

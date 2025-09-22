@@ -8,6 +8,8 @@ export const listMyApiKeys = async (req: AuthedRequest, res: Response) => {
   res.json(keys);
 };
 
+
+// create a new API key for the authenticated user
 export const createMyApiKey = async (req: AuthedRequest, res: Response) => {
   const { label, scopes, expiresAt } = req.body || {};
   const raw = generateApiKey();
@@ -17,6 +19,8 @@ export const createMyApiKey = async (req: AuthedRequest, res: Response) => {
   res.status(201).json({ _id: created._id, apiKey: raw, label: created.label, scopes: created.scopes, status: created.status, createdAt: created.createdAt, expiresAt: created.expiresAt });
 };
 
+
+// revoke (soft delete) an API key by id for the authenticated user
 export const revokeMyApiKey = async (req: AuthedRequest, res: Response) => {
   const { id } = req.params;
   const updated = await ApiKey.findOneAndUpdate({ _id: id, userId: req.user!._id }, { status: "revoked" }, { new: true });

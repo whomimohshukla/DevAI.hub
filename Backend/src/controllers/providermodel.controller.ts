@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 import { ProviderModel } from "../models/providermodel.model";
 
+
+// get all provider models
 export const listProviderModels = async (_req: Request, res: Response) => {
   const items = await ProviderModel.find().sort({ service: 1, modelName: 1 });
   res.json(items);
 };
+
+
+// create a new provider model
 
 export const createProviderModel = async (req: Request, res: Response) => {
   const { providerId, modelName, service, defaultParams, pricing, status } = req.body || {};
@@ -14,6 +19,8 @@ export const createProviderModel = async (req: Request, res: Response) => {
   res.status(201).json(created);
 };
 
+
+// update the provider model by id
 export const updateProviderModel = async (req: Request, res: Response) => {
   const { id } = req.params;
   const updated = await ProviderModel.findByIdAndUpdate(id, req.body, { new: true });
@@ -21,6 +28,8 @@ export const updateProviderModel = async (req: Request, res: Response) => {
   res.json(updated);
 };
 
+
+// delete the provider model by id
 export const deleteProviderModel = async (req: Request, res: Response) => {
   const { id } = req.params;
   const deleted = await ProviderModel.findByIdAndDelete(id);

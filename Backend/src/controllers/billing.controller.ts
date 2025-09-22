@@ -7,6 +7,8 @@ import { Subscription } from "../models/subscription.model";
 const stripeSecret = process.env.STRIPE_SECRET_KEY || "";
 export const stripe = new Stripe(stripeSecret, { apiVersion: "2024-06-20" as any });
 
+
+// create a Stripe checkout session for the authenticated user
 export const createCheckoutSession = async (req: AuthedRequest, res: Response) => {
   const { planName, interval } = req.body || {};
   if (!planName || (interval !== "month" && interval !== "year")) {

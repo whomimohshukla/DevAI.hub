@@ -2,6 +2,8 @@ import { Response } from "express";
 import { AuthedRequest } from "../middleware/auth";
 import { RequestLog } from "../models/requestlog.model";
 
+
+// get usage summary for the authenticated user
 export const myUsageSummary = async (req: AuthedRequest, res: Response) => {
   const userId = req.user!._id;
   const { from, to } = req.query as { from?: string; to?: string };
@@ -40,6 +42,8 @@ export const myUsageSummary = async (req: AuthedRequest, res: Response) => {
   res.json({ userId, from: from || null, to: to || null, items: agg });
 };
 
+
+// get recent request logs for the authenticated user
 export const myRecentLogs = async (req: AuthedRequest, res: Response) => {
   const userId = req.user!._id;
   const limit = Math.max(1, Math.min(parseInt((req.query.limit as string) || "50", 10), 200));

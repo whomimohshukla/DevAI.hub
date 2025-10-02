@@ -1,46 +1,66 @@
 export default function FlowDiagram() {
+  const providers = [
+    { name: 'OpenAI', models: ['GPT‑4o', 'GPT‑3.5', 'Whisper'] },
+    { name: 'Hugging Face', models: ['Flan‑T5', 'Llama', 'CLIP'] },
+    { name: 'Stability AI', models: ['SDXL', 'SD3', 'Core'] },
+    { name: 'ElevenLabs', models: ['Multilingual‑V2', 'Voice‑Cloning'] },
+  ]
+
   return (
-    <div className="mx-auto w-full max-w-3xl">
-      <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
-        <svg viewBox="0 0 800 260" className="h-56 w-full text-zinc-700 dark:text-zinc-300">
-          <defs>
-            <linearGradient id="g1" x1="0" x2="1">
-              <stop offset="0%" stopColor="#6366f1" />
-              <stop offset="100%" stopColor="#a855f7" />
-            </linearGradient>
-          </defs>
-          <rect x="40" y="30" width="220" height="80" rx="14" fill="url(#g1)" opacity="0.15" />
-          <rect x="40" y="30" width="220" height="80" rx="14" fill="none" stroke="currentColor" strokeOpacity="0.3" />
-          <text x="150" y="75" textAnchor="middle" className="fill-current">Developer App</text>
+    <div className="mx-auto w-full max-w-5xl">
+      <div className="rounded-2xl border border-zinc-200 bg-white/90 p-6 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr_auto_1.4fr] md:items-start">
+          {/* Left: Developer */}
+          <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Developer App</h3>
+            <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700 dark:text-zinc-300">
+              <li>Your product</li>
+              <li>Single API key</li>
+            </ul>
+          </div>
 
-          <rect x="290" y="30" width="220" height="80" rx="14" fill="url(#g1)" opacity="0.15" />
-          <rect x="290" y="30" width="220" height="80" rx="14" fill="none" stroke="currentColor" strokeOpacity="0.3" />
-          <text x="400" y="60" textAnchor="middle" className="fill-current">DevAI Hub</text>
-          <text x="400" y="82" textAnchor="middle" className="fill-current" fontSize="12">Auth • Routing • Analytics • Billing</text>
+          {/* Arrow */}
+          <div className="hidden md:flex items-center justify-center pt-6 text-zinc-500">→</div>
 
-          <rect x="540" y="10" width="220" height="50" rx="10" fill="none" stroke="currentColor" strokeOpacity="0.3" />
-          <text x="650" y="40" textAnchor="middle" className="fill-current" fontSize="12">OpenAI</text>
-          <rect x="540" y="70" width="220" height="50" rx="10" fill="none" stroke="currentColor" strokeOpacity="0.3" />
-          <text x="650" y="100" textAnchor="middle" className="fill-current" fontSize="12">Hugging Face</text>
-          <rect x="540" y="130" width="220" height="50" rx="10" fill="none" stroke="currentColor" strokeOpacity="0.3" />
-          <text x="650" y="160" textAnchor="middle" className="fill-current" fontSize="12">Stability AI</text>
-          <rect x="540" y="190" width="220" height="50" rx="10" fill="none" stroke="currentColor" strokeOpacity="0.3" />
-          <text x="650" y="220" textAnchor="middle" className="fill-current" fontSize="12">ElevenLabs</text>
+          {/* Middle: Hub */}
+          <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">DevAI Hub</h3>
+            <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700 dark:text-zinc-300">
+              <li>Auth & key management</li>
+              <li>Routing & failover</li>
+              <li>Usage & rate limits</li>
+              <li>Billing & webhooks</li>
+            </ul>
+          </div>
 
-          <line x1="260" y1="70" x2="290" y2="70" stroke="currentColor" strokeOpacity="0.5" />
-          <line x1="510" y1="70" x2="540" y2="35" stroke="currentColor" strokeOpacity="0.5" />
-          <line x1="510" y1="70" x2="540" y2="95" stroke="currentColor" strokeOpacity="0.5" />
-          <line x1="510" y1="70" x2="540" y2="145" stroke="currentColor" strokeOpacity="0.5" />
-          <line x1="510" y1="70" x2="540" y2="205" stroke="currentColor" strokeOpacity="0.5" />
+          {/* Arrow */}
+          <div className="hidden md:flex items-center justify-center pt-6 text-zinc-500">→</div>
 
-          <circle cx="260" cy="70" r="3" fill="currentColor" />
-          <circle cx="290" cy="70" r="3" fill="currentColor" />
-          <circle cx="510" cy="70" r="3" fill="currentColor" />
-          <circle cx="540" cy="35" r="3" fill="currentColor" />
-          <circle cx="540" cy="95" r="3" fill="currentColor" />
-          <circle cx="540" cy="145" r="3" fill="currentColor" />
-          <circle cx="540" cy="205" r="3" fill="currentColor" />
-        </svg>
+          {/* Right: Providers */}
+          <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">AI Providers & Models</h3>
+            <div className="mt-2 grid gap-3">
+              {providers.map((p) => (
+                <div key={p.name} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+                  <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{p.name}</div>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {p.models.map((m) => (
+                      <span key={m} className="rounded-md border border-zinc-200 px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile arrows */}
+        <div className="mt-4 grid gap-3 md:hidden">
+          <div className="flex items-center justify-center text-zinc-500">↓</div>
+          <div className="flex items-center justify-center text-zinc-500">↓</div>
+        </div>
       </div>
     </div>
   )

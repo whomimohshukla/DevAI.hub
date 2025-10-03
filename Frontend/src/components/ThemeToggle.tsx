@@ -13,9 +13,16 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     const root = document.documentElement
-    if (theme === 'dark') root.classList.add('dark')
-    else root.classList.remove('dark')
+    const body = document.body
+    if (theme === 'dark') {
+      root.classList.add('dark')
+      body.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+      body.classList.remove('dark')
+    }
     localStorage.setItem('theme', theme)
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }))
   }, [theme])
 
   return (

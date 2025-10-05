@@ -1,8 +1,7 @@
 import { Response, NextFunction } from "express";
 import { AuthedRequest } from "./auth";
 
-// Simple in-memory rate limiter: X requests per minute per API key
-// For production, replace with Redis-based sliding window.
+
 const windowMs = 60 * 1000;
 const maxPerMinute = parseInt(process.env.RATE_LIMIT_PER_MINUTE || "60", 10);
 

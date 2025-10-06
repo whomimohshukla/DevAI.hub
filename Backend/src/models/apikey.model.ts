@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IApiKey extends Document {
   userId: mongoose.Types.ObjectId;
-  keyHash: string; // sha256 of the raw key
+  keyHash: string; 
   label?: string;
   scopes: string[]; // e.g., ["text", "image", "speech"]
   status: "active" | "revoked";

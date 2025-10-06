@@ -16,6 +16,7 @@ export interface IProviderModel extends Document {
   updatedAt: Date;
 }
 
+// TODO: add indexes for providerId + modelName uniqueness
 const providerModelSchema = new Schema<IProviderModel>(
   {
     providerId: { type: Schema.Types.ObjectId, ref: "Provider", required: true },

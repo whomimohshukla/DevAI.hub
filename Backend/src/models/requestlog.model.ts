@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+// TODO: add indexes for userId + apiKeyId + service + routeName uniqueness
 export interface IRequestLog extends Document {
   userId?: mongoose.Types.ObjectId;
   apiKeyId?: mongoose.Types.ObjectId;
@@ -20,6 +21,8 @@ export interface IRequestLog extends Document {
   updatedAt: Date;
 }
 
+
+// requestLogSchema.index({ userId: 1, apiKeyId: 1, service: 1, routeName: 1 }, { unique: true });
 const requestLogSchema = new Schema<IRequestLog>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User" },

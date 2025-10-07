@@ -14,6 +14,8 @@ export interface IUsage extends Document {
 	lastUsedAt: Date;
 }
 
+
+// TODO: add indexes for userId + service + routeName uniqueness
 const usageSchema = new Schema<IUsage>(
 	{
 		userId: { type: Schema.Types.ObjectId, ref: "User", required: true },

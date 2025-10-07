@@ -15,6 +15,8 @@ export interface IUser extends Document {
 	updatedAt: Date;
 }
 
+// TODO: add indexes for email uniqueness
+// userSchema.index({ email: 1 }, { unique: true });
 const userSchema = new Schema<IUser>(
 	{
 		name: { type: String, required: true },

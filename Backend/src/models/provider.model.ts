@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+
+// TODO: add indexes for name uniqueness
 export interface IProvider extends Document {
   name: string; // "openai" | "huggingface" | "stability" | etc
   baseUrl?: string;
@@ -11,6 +13,8 @@ export interface IProvider extends Document {
   updatedAt: Date;
 }
 
+
+// providerSchema.index({ name: 1 }, { unique: true });
 const providerSchema = new Schema<IProvider>(
   {
     name: { type: String, required: true, unique: true },

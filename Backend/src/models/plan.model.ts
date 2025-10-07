@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+
+// TODO: add indexes for name uniqueness
 export interface IPlan extends Document {
   name: "free" | "pro" | "enterprise" | string;
   description?: string;
@@ -18,6 +20,8 @@ export interface IPlan extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// planSchema.index({ name: 1 }, { unique: true });
 
 const planSchema = new Schema<IPlan>(
   {

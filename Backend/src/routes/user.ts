@@ -5,6 +5,8 @@ import { getMe } from "../controllers/user.controller";
 
 const router = Router();
 
+
+// these are the routes for managing users
 router.get("/me", clerkRequireAuth, syncClerkUser, asyncHandler(getMe));
 
 export default router;

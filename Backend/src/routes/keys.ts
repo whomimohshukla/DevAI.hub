@@ -5,6 +5,8 @@ import { clerkRequireAuth, syncClerkUser } from "../middleware/clerk";
 
 const router = Router();
 
+
+// these are the routes for managing user's own API keys
 router.get("/", clerkRequireAuth, syncClerkUser, asyncHandler(listMyApiKeys));
 router.post("/", clerkRequireAuth, syncClerkUser, asyncHandler(createMyApiKey));
 router.post("/:id/revoke", clerkRequireAuth, syncClerkUser, asyncHandler(revokeMyApiKey));

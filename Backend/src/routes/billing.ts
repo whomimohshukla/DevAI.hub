@@ -5,6 +5,7 @@ import { createCheckoutSession, createPortalSession } from "../controllers/billi
 
 const router = Router();
 
+// these are the billing routes
 router.post("/checkout", clerkRequireAuth, syncClerkUser, asyncHandler(createCheckoutSession));
 router.post("/portal", clerkRequireAuth, syncClerkUser, asyncHandler(createPortalSession));
 

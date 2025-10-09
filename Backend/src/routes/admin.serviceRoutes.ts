@@ -5,6 +5,8 @@ import { createServiceRoute, deleteServiceRoute, listServiceRoutes, updateServic
 
 const router = Router();
 
+
+// these are the admin routes for managing service routes
 router.use(clerkRequireAuth, syncClerkUser, clerkAdminOnly);
 
 router.get("/", asyncHandler(listServiceRoutes));

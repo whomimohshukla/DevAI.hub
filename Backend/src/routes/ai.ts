@@ -6,6 +6,8 @@ import { imageGenerate, speech, textCompletion } from "../controllers/ai.control
 
 const router = Router();
 
+
+// these are the public AI routes
 router.post("/text", apiKeyAuth, basicRateLimit, asyncHandler(textCompletion));
 router.post("/image", apiKeyAuth, basicRateLimit, asyncHandler(imageGenerate));
 router.post("/speech", apiKeyAuth, basicRateLimit, asyncHandler(speech));

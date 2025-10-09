@@ -5,6 +5,8 @@ import { createProvider, deleteProvider, listProviders, updateProvider } from ".
 
 const router = Router();
 
+
+// these are the admin routes for managing providers
 router.use(clerkRequireAuth, syncClerkUser, clerkAdminOnly);
 
 router.get("/", asyncHandler(listProviders));

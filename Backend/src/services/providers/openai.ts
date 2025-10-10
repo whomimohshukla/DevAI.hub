@@ -8,6 +8,8 @@ if (!apiKey) {
   // console.warn("OPENAI_API_KEY is not set; /api/ai/text will fail until set.");
 }
 
+
+// TODO: add support for streaming
 export async function openaiTextCompletion(prompt: string, model: string, params?: Record<string, any>) {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
   const client = new OpenAI({ apiKey });
@@ -38,6 +40,8 @@ export async function openaiTextCompletion(prompt: string, model: string, params
   };
 }
 
+
+// TODO: add support for streaming
 export async function openaiImageGenerate(prompt: string, model: string, params?: Record<string, any>) {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
   const client = new OpenAI({ apiKey });
@@ -56,6 +60,8 @@ export async function openaiImageGenerate(prompt: string, model: string, params?
   return { imageBase64: b64, latencyMs, raw: res };
 }
 
+
+// TODO: add support for streaming
 export async function openaiSpeechToText(audio: Buffer, model: string, params?: Record<string, any>) {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
   const client = new OpenAI({ apiKey });
@@ -65,6 +71,8 @@ export async function openaiSpeechToText(audio: Buffer, model: string, params?: 
   const latencyMs = Date.now() - start;
   return { text: (res as any).text as string, latencyMs, raw: res };
 }
+
+// TODO: add support for streaming
 
 export async function openaiTextToSpeech(text: string, model: string, voice: string = "alloy", format: "mp3" | "wav" = "mp3") {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");

@@ -1,6 +1,7 @@
 
 
-// fetches a buffer from a url
+// fetches a buffer from a 
+// https://github.com/nodejs/undici/blob/main/docs/api/fetch.md
 
 export async function fetchBuffer(url: string): Promise<Buffer> {
   const res = await fetch(url);

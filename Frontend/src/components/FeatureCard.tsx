@@ -5,6 +5,8 @@ type Props = {
   desc: string
 }
 
+// A card component to showcase a feature with title and description of the feature
+
 export default function FeatureCard({ title, desc }: Props) {
   return (
     <CardSpotlight>

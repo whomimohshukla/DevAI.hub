@@ -3,6 +3,8 @@ type Props = {
   onExplore?: () => void
 }
 
+
+// this the hero section at the top of the homepage
 export default function Hero({ onExplore }: Props) {
   return (
     <section className="relative overflow-hidden">

@@ -1,3 +1,6 @@
+
+// this is the footer component for the website
+
 export default function Footer() {
   return (
     <footer className="border-t border-black/10 bg-white/80 backdrop-blur dark:border-white/5 dark:bg-black/60">

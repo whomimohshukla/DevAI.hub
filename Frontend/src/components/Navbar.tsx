@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle'
 
+
+// this is the navbar component for the website
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   return (

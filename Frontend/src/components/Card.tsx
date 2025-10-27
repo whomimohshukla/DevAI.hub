@@ -22,18 +22,32 @@ export default function Card({ children, className = '', contentClassName = '' }
     <div
       className={
         `relative group rounded-2xl border border-zinc-200 transition-all duration-300 ` +
-        `hover:border-zinc-300 hover:ring-1 hover:ring-black/10 ` +
-        `dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:ring-white/10 ` +
+        `hover:border-transparent hover:ring-0 ` +
+        `dark:border-zinc-800 ` +
         className
       }
     >
+      {/* Gradient border halo */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(236,72,153,0.45), rgba(79,70,229,0.35), rgba(14,165,233,0.35))',
+          WebkitMask:
+            'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude',
+          padding: '1px',
+        }}
+      />
       <div
         ref={ref}
         className={
           `relative overflow-hidden rounded-2xl p-6 ` +
-          `bg-white shadow-sm hover:shadow-md ` +
+          `bg-white shadow-sm hover:shadow-lg ` +
           `dark:bg-zinc-900 ` +
-          `transition-all duration-300 group-hover:-translate-y-0.5 ` +
+          `transition-transform duration-300 group-hover:-translate-y-1 ` +
           contentClassName
         }
         onMouseMove={onMove}

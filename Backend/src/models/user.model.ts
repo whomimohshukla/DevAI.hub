@@ -3,13 +3,17 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IUser extends Document {
 	name: string;
 	email: string;
-	password?: string;
-	clerkUserId?: string;
+	hashedPassword: string;
 	role: "user" | "admin";
 	credits: number;
 	subscriptionPlan: "free" | "pro" | "enterprise";
 	profileImage?: string;
 	isActive: boolean;
+	emailVerified?: Date | null;
+	verificationToken?: string | null;
+	verificationTokenExpires?: Date | null;
+	passwordResetToken?: string | null;
+	passwordResetExpires?: Date | null;
 	lastLogin?: Date;
 	createdAt: Date;
 	updatedAt: Date;
@@ -20,9 +24,8 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>(
 	{
 		name: { type: String, required: true },
-		email: { type: String, required: true, unique: true },
-		password: { type: String, default: "" },
-		clerkUserId: { type: String, unique: true, sparse: true },
+		email: { type: String, required: true, unique: true, index: true },
+		hashedPassword: { type: String, required: true },
 		role: { type: String, enum: ["user", "admin"], default: "user" },
 		credits: { type: Number, default: 100 },
 		subscriptionPlan: {
@@ -32,6 +35,11 @@ const userSchema = new Schema<IUser>(
 		},
 		profileImage: { type: String },
 		isActive: { type: Boolean, default: true },
+		emailVerified: { type: Date, default: null },
+		verificationToken: { type: String, default: null },
+		verificationTokenExpires: { type: Date, default: null },
+		passwordResetToken: { type: String, default: null },
+		passwordResetExpires: { type: Date, default: null },
 		lastLogin: { type: Date },
 	},
 	{ timestamps: true }

@@ -18,7 +18,11 @@ export interface IUsage extends Document {
 const usageSchema = new Schema<IUsage>(
 	{
 		userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-		service: { type: String, enum: ["text", "image", "speech", "embeddings", "audio_transcription"], required: true },
+		service: {
+			type: String,
+			enum: ["text", "image", "speech", "embeddings", "audio_transcription"],
+			required: true,
+		},
 		routeName: { type: String, required: true },
 		requests: { type: Number, default: 0 },
 		tokensUsed: { type: Number, default: 0 },

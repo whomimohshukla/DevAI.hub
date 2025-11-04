@@ -15,20 +15,19 @@ const logFormat = process.env.NODE_ENV === "production" ? "combined" : "dev";
 app.use(morgan(logFormat));
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+	res.send("Hello World!");
 });
 
-
 async function start() {
-  try {
-    await connectDB();
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
-  } catch (err) {
-    console.error("Failed to start server:", err);
-    process.exit(1);
-  }
+	try {
+		await connectDB();
+		app.listen(port, () => {
+			console.log(`Server is running on port ${port}`);
+		});
+	} catch (err) {
+		console.error("Failed to start server:", err);
+		process.exit(1);
+	}
 }
 
 start();

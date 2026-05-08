@@ -56,14 +56,38 @@ app.use("/usage", usageRouter);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use(
   (
-    err: { status?: number; message?: string },
+    err: {
+      status?: number;
+      message?: string;
+      name?: string;
+      code?: number;
+      errors?: Record<string, { message?: string }>;
+    },
     _req: express.Request,
     res: express.Response,
     _next: express.NextFunction
   ) => {
     console.error("Error:", err);
+    if (err.name === "ValidationError" && err.errors) {
+      const details = Object.values(err.errors)
+        .map((item) => item.message)
+        .filter(Boolean);
+      return res.status(400).json({
+        error: details[0] || "Validation failed",
+        details,
+      });
+    }
+    if (err.name === "CastError") {
+      return res.status(400).json({ error: "Invalid resource id" });
+    }
+    if (err.code === 11000) {
+      return res.status(409).json({ error: "Resource already exists" });
+    }
+
     const status = err.status || 500;
-    res.status(status).json({ error: err.message || "Internal Server Error" });
+    const message =
+      status >= 500 ? "Internal Server Error" : err.message || "Request failed";
+    return res.status(status).json({ error: message });
   }
 );
 

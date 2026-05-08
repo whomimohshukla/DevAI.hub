@@ -35,13 +35,26 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProviderModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+// TODO: add indexes for providerId + modelName uniqueness
 const providerModelSchema = new mongoose_1.Schema({
-    providerId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Provider", required: true },
+    providerId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "Provider",
+        required: true,
+    },
     modelName: { type: String, required: true },
-    service: { type: String, enum: ["text", "image", "speech"], required: true },
+    service: {
+        type: String,
+        enum: ["text", "image", "speech", "embeddings", "audio_transcription"],
+        required: true,
+    },
     defaultParams: { type: mongoose_1.Schema.Types.Mixed },
     pricing: {
-        unit: { type: String, enum: ["token", "request", "minute"], default: "token" },
+        unit: {
+            type: String,
+            enum: ["token", "request", "minute"],
+            default: "token",
+        },
         inputPerUnitCents: { type: Number },
         outputPerUnitCents: { type: Number },
         perRequestCents: { type: Number },

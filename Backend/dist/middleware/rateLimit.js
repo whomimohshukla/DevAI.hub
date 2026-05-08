@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.basicRateLimit = basicRateLimit;
-// Simple in-memory rate limiter: X requests per minute per API key
-// For production, replace with Redis-based sliding window.
 const windowMs = 60 * 1000;
 const maxPerMinute = parseInt(process.env.RATE_LIMIT_PER_MINUTE || "60", 10);
 const buckets = new Map();
@@ -11,10 +9,9 @@ function basicRateLimit(req, res, next) {
     if (!apiKeyId)
         return res.status(401).json({ error: "Unauthenticated" });
     const now = Date.now();
-    const key = apiKeyId;
-    const entry = buckets.get(key);
+    const entry = buckets.get(apiKeyId);
     if (!entry || now - entry.windowStart >= windowMs) {
-        buckets.set(key, { count: 1, windowStart: now });
+        buckets.set(apiKeyId, { count: 1, windowStart: now });
         return next();
     }
     if (entry.count < maxPerMinute) {

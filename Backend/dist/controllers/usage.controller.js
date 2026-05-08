@@ -5,6 +5,7 @@ const requestlog_model_1 = require("../models/requestlog.model");
 const myUsageSummary = async (req, res) => {
     const userId = req.user._id;
     const { from, to } = req.query;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const match = { userId };
     if (from || to) {
         match.createdAt = {};
@@ -21,7 +22,9 @@ const myUsageSummary = async (req, res) => {
                 requests: { $sum: 1 },
                 tokensUsed: { $sum: { $ifNull: ["$tokensUsed", 0] } },
                 avgLatencyMs: { $avg: { $ifNull: ["$latencyMs", 0] } },
-                errors: { $sum: { $cond: [{ $eq: ["$status", "error"] }, 1, 0] } },
+                errors: {
+                    $sum: { $cond: [{ $eq: ["$status", "error"] }, 1, 0] },
+                },
             },
         },
         {
@@ -37,13 +40,15 @@ const myUsageSummary = async (req, res) => {
         },
         { $sort: { service: 1, routeName: 1 } },
     ]);
-    res.json({ userId, from: from || null, to: to || null, items: agg });
+    return res.json({ userId, from: from || null, to: to || null, items: agg });
 };
 exports.myUsageSummary = myUsageSummary;
 const myRecentLogs = async (req, res) => {
     const userId = req.user._id;
     const limit = Math.max(1, Math.min(parseInt(req.query.limit || "50", 10), 200));
-    const logs = await requestlog_model_1.RequestLog.find({ userId }).sort({ createdAt: -1 }).limit(limit);
-    res.json(logs);
+    const logs = await requestlog_model_1.RequestLog.find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(limit);
+    return res.json(logs);
 };
 exports.myRecentLogs = myRecentLogs;

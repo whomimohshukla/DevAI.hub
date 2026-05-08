@@ -36,11 +36,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServiceRoute = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const serviceRouteSchema = new mongoose_1.Schema({
-    service: { type: String, enum: ["text", "image", "speech"], required: true },
+    service: {
+        type: String,
+        enum: ["text", "image", "speech", "embeddings", "audio_transcription"],
+        required: true,
+    },
     routeName: { type: String, required: true },
-    defaultProviderModelId: { type: mongoose_1.Schema.Types.ObjectId, ref: "ProviderModel", required: true },
-    allowedProviderModelIds: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "ProviderModel" }],
-    fallbackPolicy: { type: String, enum: ["priority", "round_robin"], default: "priority" },
+    defaultProviderModelId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "ProviderModel",
+        required: true,
+    },
+    allowedProviderModelIds: [
+        { type: mongoose_1.Schema.Types.ObjectId, ref: "ProviderModel" },
+    ],
+    fallbackPolicy: {
+        type: String,
+        enum: ["priority", "round_robin"],
+        default: "priority",
+    },
     enabled: { type: Boolean, default: true },
     version: { type: String, default: "1.0" },
 }, { timestamps: true });

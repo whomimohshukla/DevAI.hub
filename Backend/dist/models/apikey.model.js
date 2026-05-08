@@ -36,7 +36,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApiKey = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const apiKeySchema = new mongoose_1.Schema({
-    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
+    userId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+        index: true,
+    },
+    keyId: { type: String, required: true, index: true },
     keyHash: { type: String, required: true, unique: true },
     label: { type: String },
     scopes: { type: [String], default: ["text"] },
@@ -44,4 +50,5 @@ const apiKeySchema = new mongoose_1.Schema({
     lastUsedAt: { type: Date },
     expiresAt: { type: Date },
 }, { timestamps: true });
+apiKeySchema.index({ userId: 1, keyId: 1 }, { unique: true });
 exports.ApiKey = mongoose_1.default.model("ApiKey", apiKeySchema);

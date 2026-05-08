@@ -35,10 +35,12 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+// TODO: add indexes for email uniqueness
+// userSchema.index({ email: 1 }, { unique: true });
 const userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    email: { type: String, required: true, unique: true, index: true },
+    hashedPassword: { type: String, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     credits: { type: Number, default: 100 },
     subscriptionPlan: {
@@ -48,6 +50,11 @@ const userSchema = new mongoose_1.Schema({
     },
     profileImage: { type: String },
     isActive: { type: Boolean, default: true },
+    emailVerified: { type: Date, default: null },
+    verificationToken: { type: String, default: null },
+    verificationTokenExpires: { type: Date, default: null },
+    passwordResetToken: { type: String, default: null },
+    passwordResetExpires: { type: Date, default: null },
     lastLogin: { type: Date },
 }, { timestamps: true });
 exports.User = mongoose_1.default.model("User", userSchema);

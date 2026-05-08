@@ -35,9 +35,14 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Usage = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+// TODO: add indexes for userId + service + routeName uniqueness
 const usageSchema = new mongoose_1.Schema({
     userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    service: { type: String, enum: ["text", "image", "speech"], required: true },
+    service: {
+        type: String,
+        enum: ["text", "image", "speech", "embeddings", "audio_transcription"],
+        required: true,
+    },
     routeName: { type: String, required: true },
     requests: { type: Number, default: 0 },
     tokensUsed: { type: Number, default: 0 },

@@ -38,7 +38,11 @@ const mongoose_1 = __importStar(require("mongoose"));
 const providerSchema = new mongoose_1.Schema({
     name: { type: String, required: true, unique: true },
     baseUrl: { type: String },
-    authType: { type: String, enum: ["none", "apiKey", "oauth"], default: "apiKey" },
+    authType: {
+        type: String,
+        enum: ["none", "apiKey", "oauth"],
+        default: "apiKey",
+    },
     status: { type: String, enum: ["active", "inactive"], default: "active" },
     config: { type: mongoose_1.Schema.Types.Mixed },
     createdBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },

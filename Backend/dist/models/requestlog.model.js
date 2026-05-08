@@ -35,14 +35,23 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RequestLog = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+// requestLogSchema.index({ userId: 1, apiKeyId: 1, service: 1, routeName: 1 }, { unique: true });
 const requestLogSchema = new mongoose_1.Schema({
     userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
     apiKeyId: { type: mongoose_1.Schema.Types.ObjectId, ref: "ApiKey" },
-    service: { type: String, enum: ["text", "image", "speech"], required: true },
+    service: {
+        type: String,
+        enum: ["text", "image", "speech", "embeddings", "audio_transcription"],
+        required: true,
+    },
     routeName: { type: String, required: true },
     providerId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Provider" },
     providerModelId: { type: mongoose_1.Schema.Types.ObjectId, ref: "ProviderModel" },
-    status: { type: String, enum: ["success", "error", "rate_limited"], required: true },
+    status: {
+        type: String,
+        enum: ["success", "error", "rate_limited"],
+        required: true,
+    },
     httpStatus: { type: Number },
     latencyMs: { type: Number },
     tokensUsed: { type: Number },

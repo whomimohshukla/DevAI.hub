@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sha256 = sha256;
 exports.generateApiKey = generateApiKey;
+exports.getApiKeyId = getApiKeyId;
 exports.hashPassword = hashPassword;
 exports.verifyPassword = verifyPassword;
 const crypto_1 = __importDefault(require("crypto"));
@@ -13,6 +14,9 @@ function sha256(input) {
 }
 function generateApiKey() {
     return `dak_${crypto_1.default.randomBytes(24).toString("hex")}`;
+}
+function getApiKeyId(apiKey) {
+    return apiKey.slice(0, 16);
 }
 function hashPassword(password) {
     const salt = crypto_1.default.randomBytes(16).toString("hex");

@@ -4,11 +4,12 @@ import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../contexts/AuthContext'
 
 const navLinks = [
-  { to: '/api', label: 'API' },
-  { to: '/admin/providers', label: 'Providers' },
-  { to: '/admin/provider-models', label: 'Models' },
-  { to: '/admin/service-routes', label: 'Routes' },
+  { to: '/api', label: 'API', public: true },
+  { to: '/keys', label: 'Keys' },
   { to: '/usage', label: 'Usage' },
+  { to: '/admin/providers', label: 'Providers', admin: true },
+  { to: '/admin/provider-models', label: 'Models', admin: true },
+  { to: '/admin/service-routes', label: 'Routes', admin: true },
 ]
 
 export default function Navbar() {
@@ -21,6 +22,13 @@ export default function Navbar() {
     navigate('/')
     setOpen(false)
   }
+
+  const visibleLinks = navLinks.filter((link) => {
+    if (link.public) return true
+    if (!isAuthenticated) return false
+    if (link.admin) return user?.role === 'admin'
+    return true
+  })
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/10 bg-white/70 backdrop-blur dark:border-white/5 dark:bg-black/70">
@@ -41,7 +49,7 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {navLinks.map((l) => (
+            {visibleLinks.map((l) => (
               <NavLink
                 key={l.to}
                 to={l.to}
@@ -64,19 +72,23 @@ export default function Navbar() {
               <div className="hidden md:flex items-center gap-2">
                 <Link
                   to="/user"
-                  className="flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
                 >
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-[10px] font-bold text-white">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="max-w-[80px] truncate">{user?.name}</span>
+                  {user?.profileImage ? (
+                    <img src={user.profileImage} alt="" className="h-6 w-6 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-[10px] font-bold text-white">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="max-w-[120px] truncate">{user?.name}</span>
                 </Link>
-                <Link
-                  to="/keys"
-                  className="rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:from-indigo-500 hover:to-violet-500"
+                <button
+                  onClick={handleLogout}
+                  className="rounded-lg px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
                 >
-                  API Keys
-                </Link>
+                  Sign out
+                </button>
               </div>
             ) : (
               <Link
@@ -111,7 +123,7 @@ export default function Navbar() {
         <div className="border-t border-black/10 bg-white/95 backdrop-blur dark:border-white/5 dark:bg-black/90 md:hidden">
           <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
             <nav className="flex flex-col gap-1">
-              {navLinks.map((l) => (
+              {visibleLinks.map((l) => (
                 <NavLink
                   key={l.to}
                   to={l.to}

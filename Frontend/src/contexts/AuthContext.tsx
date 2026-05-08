@@ -11,7 +11,9 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
+  loginWithGoogle: (credential: string) => Promise<void>
   logout: () => void
+  refreshUser: () => Promise<void>
   setApiKeyManually: (key: string) => Promise<void>
 }
 
@@ -67,6 +69,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     applyAuth(res)
   }
 
+  const loginWithGoogle = async (credential: string) => {
+    const res = await authApi.google(credential)
+    applyAuth(res)
+  }
+
+  const refreshUser = async () => {
+    const user = await userApi.getMe()
+    setState((s) => ({ ...s, user, isAuthenticated: true, isLoading: false }))
+  }
+
   const logout = () => {
     localStorage.removeItem('devai_api_key')
     setState({ user: null, apiKey: null, isAuthenticated: false, isLoading: false })
@@ -84,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, setApiKeyManually }}>
+    <AuthContext.Provider value={{ ...state, login, register, loginWithGoogle, logout, refreshUser, setApiKeyManually }}>
       {children}
     </AuthContext.Provider>
   )

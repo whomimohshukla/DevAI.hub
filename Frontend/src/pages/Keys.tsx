@@ -24,6 +24,7 @@ export default function Keys() {
   const [error, setError] = useState('')
   const [creating, setCreating] = useState(false)
   const [newLabel, setNewLabel] = useState('')
+  const [newScopes, setNewScopes] = useState<string[]>(['text', 'image', 'speech'])
   const [newKey, setNewKey] = useState<ApiKeyCreated | null>(null)
   const [copied, setCopied] = useState(false)
   const [revoking, setRevoking] = useState<string | null>(null)
@@ -48,7 +49,7 @@ export default function Keys() {
     setCreating(true)
     setError('')
     try {
-      const created = await keysApi.create(newLabel || 'My API Key')
+      const created = await keysApi.create(newLabel || 'My API Key', newScopes)
       setNewKey(created)
       setNewLabel('')
       setShowForm(false)
@@ -82,7 +83,7 @@ export default function Keys() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <PageHeader title="API Keys" subtitle="Create, manage and revoke your API credentials." />
+        <PageHeader title="API Keys" subtitle="Create separate keys for local development, production servers, and experiments." />
         <button
           onClick={() => setShowForm((v) => !v)}
           className="mt-0 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:from-indigo-500 hover:to-violet-500 sm:mt-2"
@@ -130,19 +131,42 @@ export default function Keys() {
           >
             <Card className="mb-6">
               <h3 className="mb-4 text-sm font-semibold text-black dark:text-white">Create new API key</h3>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <input
-                  type="text"
-                  value={newLabel}
-                  onChange={(e) => setNewLabel(e.target.value)}
-                  placeholder="Key label (e.g. Production)"
-                  className="flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-black placeholder-zinc-400 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                />
+              <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Key label</label>
+                  <input
+                    type="text"
+                    value={newLabel}
+                    onChange={(e) => setNewLabel(e.target.value)}
+                    placeholder="Production server, local app, or staging"
+                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-black placeholder-zinc-400 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                    onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                  />
+                  <p className="mt-4 text-xs font-medium text-zinc-700 dark:text-zinc-300">Allowed APIs</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {['text', 'image', 'speech'].map((scope) => (
+                      <label key={scope} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
+                        <input
+                          type="checkbox"
+                          checked={newScopes.includes(scope)}
+                          onChange={(e) => {
+                            setNewScopes((prev) =>
+                              e.target.checked
+                                ? [...prev, scope]
+                                : prev.filter((item) => item !== scope)
+                            )
+                          }}
+                          className="h-4 w-4 accent-indigo-600"
+                        />
+                        {scope}
+                      </label>
+                    ))}
+                  </div>
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleCreate}
-                    disabled={creating}
+                    disabled={creating || newScopes.length === 0}
                     className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
                   >
                     {creating ? <Spinner label="Creating" /> : 'Create'}
@@ -162,6 +186,21 @@ export default function Keys() {
 
       <ErrorMessage message={error} onRetry={load} />
 
+      {!loading && (
+        <div className="mb-6 grid gap-3 sm:grid-cols-3">
+          {[
+            ['Total keys', keys.length],
+            ['Active keys', keys.filter((key) => key.status === 'active').length],
+            ['Revoked keys', keys.filter((key) => key.status === 'revoked').length],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</p>
+              <p className="mt-1 text-2xl font-semibold text-black dark:text-white">{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <SkeletonGrid count={2} className="grid gap-4 sm:grid-cols-2" itemClassName="h-32" />
       ) : keys.length === 0 ? (
@@ -173,13 +212,13 @@ export default function Keys() {
           />
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           {keys.map((key) => (
             <motion.div key={key._id} layout>
-              <Card>
-                <div className="flex items-start justify-between gap-3">
+              <Card contentClassName="p-5">
+                <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-sm font-semibold text-black dark:text-white">
                         {key.label || 'Unnamed key'}
                       </h3>
@@ -194,10 +233,11 @@ export default function Keys() {
                     <div className="mt-2 flex flex-wrap gap-1">
                       {key.scopes.map((s) => <ScopeTag key={s} scope={s} />)}
                     </div>
-                    <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                       Created {new Date(key.createdAt).toLocaleDateString()}
                       {key.lastUsedAt && ` · Last used ${new Date(key.lastUsedAt).toLocaleDateString()}`}
                     </p>
+                    <p className="mt-1 font-mono text-[11px] text-zinc-400 dark:text-zinc-500">ID: {key._id}</p>
                   </div>
                   {key.status === 'active' && (
                     <button

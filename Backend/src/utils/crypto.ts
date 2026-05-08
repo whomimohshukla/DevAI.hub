@@ -8,6 +8,10 @@ export function generateApiKey(): string {
   return `dak_${crypto.randomBytes(24).toString("hex")}`;
 }
 
+export function getApiKeyId(apiKey: string): string {
+  return apiKey.slice(0, 16);
+}
+
 export function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString("hex");
   const hash = crypto

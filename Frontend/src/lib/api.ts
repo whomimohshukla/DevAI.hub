@@ -83,11 +83,28 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }, false),
+
+  google: (credential: string) =>
+    request<AuthResponse>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ credential }),
+    }, false),
 }
 
 // User
 export const userApi = {
   getMe: () => request<User>('/user/me'),
+  updateMe: (name: string) =>
+    request<User>('/user/me', {
+      method: 'PUT',
+      body: JSON.stringify({ name }),
+    }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<{ ok: boolean }>('/user/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
+  deleteMe: () => request<{ ok: boolean }>('/user/me', { method: 'DELETE' }),
 }
 
 // API Keys
@@ -200,6 +217,8 @@ export interface User {
   role: 'user' | 'admin'
   subscriptionPlan: 'free' | 'pro' | 'enterprise'
   credits: number
+  authProvider?: 'local' | 'google'
+  profileImage?: string
   isActive: boolean
   createdAt: string
   updatedAt: string

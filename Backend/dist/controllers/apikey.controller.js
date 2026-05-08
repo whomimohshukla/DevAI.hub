@@ -16,6 +16,7 @@ const createMyApiKey = async (req, res) => {
     const keyHash = (0, crypto_1.sha256)(raw);
     const created = await apikey_model_1.ApiKey.create({
         userId: req.user._id,
+        keyId: (0, crypto_1.getApiKeyId)(raw),
         keyHash,
         label,
         scopes: scopes || ["text"],

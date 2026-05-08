@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ApiKey } from "../models/apikey.model";
-import { generateApiKey, sha256 } from "../utils/crypto";
+import { generateApiKey, getApiKeyId, sha256 } from "../utils/crypto";
 
 export const listMyApiKeys = async (req: Request, res: Response) => {
   const keys = await ApiKey.find({ userId: req.user._id })
@@ -15,6 +15,7 @@ export const createMyApiKey = async (req: Request, res: Response) => {
   const keyHash = sha256(raw);
   const created = await ApiKey.create({
     userId: req.user._id,
+    keyId: getApiKeyId(raw),
     keyHash,
     label,
     scopes: scopes || ["text"],

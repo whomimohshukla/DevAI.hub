@@ -50,8 +50,24 @@ app.use("/usage", usage_1.default);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err, _req, res, _next) => {
     console.error("Error:", err);
+    if (err.name === "ValidationError" && err.errors) {
+        const details = Object.values(err.errors)
+            .map((item) => item.message)
+            .filter(Boolean);
+        return res.status(400).json({
+            error: details[0] || "Validation failed",
+            details,
+        });
+    }
+    if (err.name === "CastError") {
+        return res.status(400).json({ error: "Invalid resource id" });
+    }
+    if (err.code === 11000) {
+        return res.status(409).json({ error: "Resource already exists" });
+    }
     const status = err.status || 500;
-    res.status(status).json({ error: err.message || "Internal Server Error" });
+    const message = status >= 500 ? "Internal Server Error" : err.message || "Request failed";
+    return res.status(status).json({ error: message });
 });
 async function start() {
     try {

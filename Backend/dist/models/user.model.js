@@ -41,6 +41,8 @@ const userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, index: true },
     hashedPassword: { type: String, required: true },
+    authProvider: { type: String, enum: ["local", "google"], default: "local" },
+    googleId: { type: String, index: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     credits: { type: Number, default: 100 },
     subscriptionPlan: {

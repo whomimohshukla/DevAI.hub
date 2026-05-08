@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useAuth } from '../contexts/AuthContext'
 import { ApiError } from '../lib/api'
+import { ErrorMessage, Spinner } from '../components/Feedback'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -135,9 +136,8 @@ export default function Login() {
               <motion.div
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800/50"
               >
-                {error}
+                <ErrorMessage message={error} className="mb-0" />
               </motion.div>
             )}
 
@@ -146,9 +146,9 @@ export default function Login() {
               disabled={loading}
               className="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading
-                ? mode === 'login' ? 'Signing in…' : 'Creating account…'
-                : mode === 'login' ? 'Sign in' : 'Create account'}
+              {loading ? (
+                <Spinner label={mode === 'login' ? 'Signing in' : 'Creating account'} />
+              ) : mode === 'login' ? 'Sign in' : 'Create account'}
             </button>
           </form>
         </div>

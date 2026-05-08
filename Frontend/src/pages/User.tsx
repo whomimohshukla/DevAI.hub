@@ -4,13 +4,14 @@ import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
 import ThemeToggle from '../components/ThemeToggle'
 import { useAuth } from '../contexts/AuthContext'
+import { PageSpinner } from '../components/Feedback'
 
 export default function User() {
   const { user, logout, apiKey } = useAuth()
   const [copied, setCopied] = useState(false)
   const [showKey, setShowKey] = useState(false)
 
-  if (!user) return null
+  if (!user) return <PageSpinner label="Loading account" />
 
   const copyKey = async () => {
     if (!apiKey) return

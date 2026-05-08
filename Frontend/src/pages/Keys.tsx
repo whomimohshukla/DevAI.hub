@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
+import { EmptyState, ErrorMessage, SkeletonGrid, Spinner } from '../components/Feedback'
 import { keysApi, type ApiKey, type ApiKeyCreated, ApiError } from '../lib/api'
 
 function ScopeTag({ scope }: { scope: string }) {
@@ -45,6 +46,7 @@ export default function Keys() {
   const handleCreate = async () => {
     if (creating) return
     setCreating(true)
+    setError('')
     try {
       const created = await keysApi.create(newLabel || 'My API Key')
       setNewKey(created)
@@ -60,6 +62,7 @@ export default function Keys() {
 
   const handleRevoke = async (id: string) => {
     setRevoking(id)
+    setError('')
     try {
       await keysApi.revoke(id)
       setKeys((prev) => prev.map((k) => k._id === id ? { ...k, status: 'revoked' } : k))
@@ -142,7 +145,7 @@ export default function Keys() {
                     disabled={creating}
                     className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
                   >
-                    {creating ? 'Creating…' : 'Create'}
+                    {creating ? <Spinner label="Creating" /> : 'Create'}
                   </button>
                   <button
                     onClick={() => setShowForm(false)}
@@ -157,27 +160,17 @@ export default function Keys() {
         )}
       </AnimatePresence>
 
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800/50">
-          {error}
-        </div>
-      )}
+      <ErrorMessage message={error} onRetry={load} />
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[1, 2].map((i) => (
-            <div key={i} className="h-32 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />
-          ))}
-        </div>
+        <SkeletonGrid count={2} className="grid gap-4 sm:grid-cols-2" itemClassName="h-32" />
       ) : keys.length === 0 ? (
         <Card>
-          <div className="flex flex-col items-center py-8 text-center">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-zinc-400"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-            </div>
-            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">No API keys yet</p>
-            <p className="mt-1 text-xs text-zinc-500">Create your first key to start making API calls.</p>
-          </div>
+          <EmptyState
+            title="No API keys yet"
+            description="Create your first key to start making API calls."
+            icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+          />
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -212,7 +205,7 @@ export default function Keys() {
                       disabled={revoking === key._id}
                       className="shrink-0 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-950/20"
                     >
-                      {revoking === key._id ? '…' : 'Revoke'}
+                      {revoking === key._id ? <Spinner label="Revoking" /> : 'Revoke'}
                     </button>
                   )}
                 </div>

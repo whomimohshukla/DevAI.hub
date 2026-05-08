@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
+import { EmptyState, ErrorMessage, SkeletonGrid, Spinner } from '../components/Feedback'
 import { serviceRoutesApi, modelsApi, type ServiceRoute, type ProviderModel, ApiError } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -40,6 +41,7 @@ export default function ServiceRoutes() {
     fallbackPolicy: 'priority' as 'priority' | 'round_robin',
   })
   const [creating, setCreating] = useState(false)
+  const [workingId, setWorkingId] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -63,6 +65,7 @@ export default function ServiceRoutes() {
   const handleCreate = async () => {
     if (!form.routeName.trim() || !form.defaultProviderModelId) return
     setCreating(true)
+    setError('')
     try {
       await serviceRoutesApi.create(form)
       setForm({ service: 'text', routeName: '', defaultProviderModelId: '', fallbackPolicy: 'priority' })
@@ -76,20 +79,28 @@ export default function ServiceRoutes() {
   }
 
   const handleDelete = async (id: string) => {
+    setWorkingId(id)
+    setError('')
     try {
       await serviceRoutesApi.delete(id)
       setRoutes((r) => r.filter((x) => x._id !== id))
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to delete route')
+    } finally {
+      setWorkingId(null)
     }
   }
 
   const handleToggle = async (id: string, enabled: boolean) => {
+    setWorkingId(id)
+    setError('')
     try {
       const updated = await serviceRoutesApi.update(id, { enabled })
       setRoutes((r) => r.map((x) => x._id === id ? { ...x, ...updated } : x))
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to update route')
+    } finally {
+      setWorkingId(null)
     }
   }
 
@@ -116,11 +127,7 @@ export default function ServiceRoutes() {
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800/50">
-          {error}
-        </div>
-      )}
+      <ErrorMessage message={error} onRetry={load} />
 
       <AnimatePresence>
         {showForm && isAdmin && (
@@ -165,7 +172,7 @@ export default function ServiceRoutes() {
               </div>
               <div className="mt-3 flex gap-2">
                 <button onClick={handleCreate} disabled={creating} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60">
-                  {creating ? 'Creating…' : 'Create Route'}
+                  {creating ? <Spinner label="Creating" /> : 'Create Route'}
                 </button>
                 <button onClick={() => setShowForm(false)} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
                   Cancel
@@ -177,15 +184,13 @@ export default function ServiceRoutes() {
       </AnimatePresence>
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-40 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />)}
-        </div>
+        <SkeletonGrid itemClassName="h-40" />
       ) : routes.length === 0 ? (
         <Card>
-          <div className="flex flex-col items-center py-10 text-center">
-            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">No service routes configured</p>
-            <p className="mt-1 text-xs text-zinc-500">{isAdmin ? 'Create a route to enable AI endpoints.' : 'No routes have been configured yet.'}</p>
-          </div>
+          <EmptyState
+            title="No service routes configured"
+            description={isAdmin ? 'Create a route to enable AI endpoints.' : 'No routes have been configured yet.'}
+          />
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -220,15 +225,17 @@ export default function ServiceRoutes() {
                   <div className="mt-4 flex gap-2">
                     <button
                       onClick={() => handleToggle(route._id, !route.enabled)}
+                      disabled={workingId === route._id}
                       className="rounded-lg border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     >
-                      {route.enabled ? 'Disable' : 'Enable'}
+                      {workingId === route._id ? <Spinner label="Saving" /> : route.enabled ? 'Disable' : 'Enable'}
                     </button>
                     <button
                       onClick={() => handleDelete(route._id)}
+                      disabled={workingId === route._id}
                       className="rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-950/20"
                     >
-                      Delete
+                      {workingId === route._id ? <Spinner label="Working" /> : 'Delete'}
                     </button>
                   </div>
                 )}

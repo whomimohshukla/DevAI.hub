@@ -11,10 +11,10 @@ import {
 
 const router = Router();
 
-router.use(apiKeyAuth, adminOnly);
+router.use(apiKeyAuth);
 router.get("/", asyncHandler(listProviderModels));
-router.post("/", asyncHandler(createProviderModel));
-router.put("/:id", asyncHandler(updateProviderModel));
-router.delete("/:id", asyncHandler(deleteProviderModel));
+router.post("/", adminOnly, asyncHandler(createProviderModel));
+router.put("/:id", adminOnly, asyncHandler(updateProviderModel));
+router.delete("/:id", adminOnly, asyncHandler(deleteProviderModel));
 
 export default router;

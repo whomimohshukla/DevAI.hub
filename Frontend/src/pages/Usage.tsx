@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'motion/react'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
+import { EmptyState, ErrorMessage, SkeletonGrid, Spinner } from '../components/Feedback'
 import { usageApi, type UsageSummaryItem, type RequestLog, ApiError } from '../lib/api'
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -37,11 +38,13 @@ export default function Usage() {
   const [summary, setSummary] = useState<UsageSummaryItem[]>([])
   const [logs, setLogs] = useState<RequestLog[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
   const [tab, setTab] = useState<'overview' | 'logs'>('overview')
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true)
+    else setLoading(true)
     setError('')
     try {
       const [summaryData, logsData] = await Promise.all([
@@ -54,6 +57,7 @@ export default function Usage() {
       setError(e instanceof ApiError ? e.message : 'Failed to load usage data')
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }, [])
 
@@ -71,26 +75,19 @@ export default function Usage() {
       <div className="flex items-start justify-between">
         <PageHeader title="Usage" subtitle="Monitor your request counts, tokens and latency." />
         <button
-          onClick={load}
-          className="mt-2 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          onClick={() => load(true)}
+          disabled={loading || refreshing}
+          className="mt-2 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
         >
-          Refresh
+          {refreshing ? <Spinner label="Refreshing" /> : 'Refresh'}
         </button>
       </div>
 
-      {error && (
-        <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800/50">
-          {error}
-        </div>
-      )}
+      <ErrorMessage message={error} onRetry={() => load(true)} className="mb-6" />
 
       {/* Stats row */}
       {loading ? (
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />
-          ))}
-        </div>
+        <SkeletonGrid count={4} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" itemClassName="h-24" />
       ) : (
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Total requests" value={totalRequests.toLocaleString()} />
@@ -123,20 +120,14 @@ export default function Usage() {
 
       {tab === 'overview' && (
         loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-40 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />
-            ))}
-          </div>
+          <SkeletonGrid itemClassName="h-40" />
         ) : summary.length === 0 ? (
           <Card>
-            <div className="flex flex-col items-center py-10 text-center">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-zinc-400"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-              </div>
-              <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">No usage data yet</p>
-              <p className="mt-1 text-xs text-zinc-500">Make some API calls to see your usage stats here.</p>
-            </div>
+            <EmptyState
+              title="No usage data yet"
+              description="Make some API calls to see your usage stats here."
+              icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -178,14 +169,12 @@ export default function Usage() {
         loading ? (
           <div className="space-y-2">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-12 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+              <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
             ))}
           </div>
         ) : logs.length === 0 ? (
           <Card>
-            <div className="flex flex-col items-center py-10 text-center">
-              <p className="text-sm text-zinc-500">No request logs yet.</p>
-            </div>
+            <EmptyState title="No request logs yet" />
           </Card>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800">

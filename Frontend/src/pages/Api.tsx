@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
+import { ErrorMessage, Spinner } from '../components/Feedback'
 import { aiApi, ApiError } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { Link } from 'react-router-dom'
@@ -273,10 +274,7 @@ export default function Api() {
               className="shrink-0 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {testing ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Running…
-                </span>
+                <Spinner label="Running" />
               ) : 'Send →'}
             </button>
           </div>
@@ -285,9 +283,9 @@ export default function Api() {
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800/50"
+              className="mt-3"
             >
-              {testError}
+              <ErrorMessage message={testError} className="mb-0" />
             </motion.div>
           )}
 

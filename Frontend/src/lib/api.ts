@@ -1,4 +1,4 @@
-const BASE_URL = ''
+const BASE_URL = import.meta.env.VITE_API_URL || ''
 
 function getApiKey(): string {
   return localStorage.getItem('devai_api_key') || ''
@@ -15,12 +15,48 @@ async function request<T>(
   }
   if (authenticated) {
     const key = getApiKey()
+    if (!key) {
+      throw new ApiError('Sign in or add an API key to continue.', 401)
+    }
     if (key) headers['x-api-key'] = key
   }
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers })
-  const data = await res.json()
-  if (!res.ok) throw new ApiError(data.error || 'Request failed', res.status, data)
+
+  let res: Response
+  try {
+    res = await fetch(`${BASE_URL}${path}`, { ...options, headers })
+  } catch (err) {
+    throw new ApiError(
+      err instanceof Error && err.name === 'AbortError'
+        ? 'Request cancelled.'
+        : 'Cannot reach the API server. Check that the backend is running.',
+      0
+    )
+  }
+
+  const contentType = res.headers.get('content-type') || ''
+  const data = contentType.includes('application/json')
+    ? await res.json().catch(() => null)
+    : await res.text().catch(() => '')
+
+  if (!res.ok) {
+    throw new ApiError(getErrorMessage(data, res.status), res.status, data)
+  }
+
   return data as T
+}
+
+function getErrorMessage(data: unknown, status: number): string {
+  if (data && typeof data === 'object') {
+    const body = data as { error?: unknown; message?: unknown }
+    if (typeof body.error === 'string' && body.error.trim()) return body.error
+    if (typeof body.message === 'string' && body.message.trim()) return body.message
+  }
+  if (typeof data === 'string' && data.trim()) return data
+  if (status === 401) return 'Your session is missing or expired. Please sign in again.'
+  if (status === 403) return 'You do not have permission to perform this action.'
+  if (status === 404) return 'The requested resource was not found.'
+  if (status >= 500) return 'The server hit a problem. Please try again.'
+  return 'Request failed. Please try again.'
 }
 
 export class ApiError extends Error {

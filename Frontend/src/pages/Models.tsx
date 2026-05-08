@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
+import { EmptyState, ErrorMessage, SkeletonGrid, Spinner } from '../components/Feedback'
 import { modelsApi, providersApi, type ProviderModel, type Provider, ApiError } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -40,6 +41,7 @@ export default function Models() {
   })
   const [creating, setCreating] = useState(false)
   const [filter, setFilter] = useState<'all' | 'text' | 'image' | 'speech'>('all')
+  const [workingId, setWorkingId] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -63,6 +65,7 @@ export default function Models() {
   const handleCreate = async () => {
     if (!form.providerId || !form.modelName.trim()) return
     setCreating(true)
+    setError('')
     try {
       await modelsApi.create(form)
       setForm({ providerId: '', modelName: '', service: 'text' })
@@ -76,20 +79,28 @@ export default function Models() {
   }
 
   const handleDelete = async (id: string) => {
+    setWorkingId(id)
+    setError('')
     try {
       await modelsApi.delete(id)
       setModels((m) => m.filter((x) => x._id !== id))
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to delete model')
+    } finally {
+      setWorkingId(null)
     }
   }
 
   const handleToggle = async (id: string, status: 'active' | 'inactive') => {
+    setWorkingId(id)
+    setError('')
     try {
       const updated = await modelsApi.update(id, { status })
       setModels((m) => m.map((x) => x._id === id ? { ...x, ...updated } : x))
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to update model')
+    } finally {
+      setWorkingId(null)
     }
   }
 
@@ -116,11 +127,7 @@ export default function Models() {
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800/50">
-          {error}
-        </div>
-      )}
+      <ErrorMessage message={error} onRetry={load} />
 
       <AnimatePresence>
         {showForm && isAdmin && (
@@ -157,7 +164,7 @@ export default function Models() {
               </div>
               <div className="mt-3 flex gap-2">
                 <button onClick={handleCreate} disabled={creating} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60">
-                  {creating ? 'Adding…' : 'Add Model'}
+                  {creating ? <Spinner label="Adding" /> : 'Add Model'}
                 </button>
                 <button onClick={() => setShowForm(false)} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
                   Cancel
@@ -186,15 +193,13 @@ export default function Models() {
       </div>
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />)}
-        </div>
+        <SkeletonGrid />
       ) : filtered.length === 0 ? (
         <Card>
-          <div className="flex flex-col items-center py-10 text-center">
-            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">No models found</p>
-            <p className="mt-1 text-xs text-zinc-500">{isAdmin ? 'Add your first model to get started.' : 'No models configured yet.'}</p>
-          </div>
+          <EmptyState
+            title="No models found"
+            description={isAdmin ? 'Add your first model to get started.' : 'No models configured yet.'}
+          />
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -228,15 +233,17 @@ export default function Models() {
                   <div className="mt-4 flex gap-2">
                     <button
                       onClick={() => handleToggle(model._id, model.status === 'active' ? 'inactive' : 'active')}
+                      disabled={workingId === model._id}
                       className="rounded-lg border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     >
-                      {model.status === 'active' ? 'Disable' : 'Enable'}
+                      {workingId === model._id ? <Spinner label="Saving" /> : model.status === 'active' ? 'Disable' : 'Enable'}
                     </button>
                     <button
                       onClick={() => handleDelete(model._id)}
+                      disabled={workingId === model._id}
                       className="rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-950/20"
                     >
-                      Delete
+                      {workingId === model._id ? <Spinner label="Working" /> : 'Delete'}
                     </button>
                   </div>
                 )}

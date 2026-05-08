@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
+import { EmptyState, ErrorMessage, SkeletonGrid, Spinner } from '../components/Feedback'
 import { providersApi, type Provider, ApiError } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -20,11 +21,13 @@ function ProviderCard({
   onDelete,
   onToggle,
   isAdmin,
+  working,
 }: {
   provider: Provider
   onDelete: (id: string) => void
   onToggle: (id: string, status: 'active' | 'inactive') => void
   isAdmin: boolean
+  working?: boolean
 }) {
   const icon = PROVIDER_ICONS[provider.name.toLowerCase()] || '⚡'
   return (
@@ -54,15 +57,17 @@ function ProviderCard({
         <div className="mt-4 flex gap-2">
           <button
             onClick={() => onToggle(provider._id, provider.status === 'active' ? 'inactive' : 'active')}
+            disabled={working}
             className="rounded-lg border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            {provider.status === 'active' ? 'Disable' : 'Enable'}
+            {working ? <Spinner label="Saving" /> : provider.status === 'active' ? 'Disable' : 'Enable'}
           </button>
           <button
             onClick={() => onDelete(provider._id)}
+            disabled={working}
             className="rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-950/20"
           >
-            Delete
+            {working ? <Spinner label="Working" /> : 'Delete'}
           </button>
         </div>
       )}
@@ -79,6 +84,7 @@ export default function Providers() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', baseUrl: '', authType: 'apiKey' as const })
   const [creating, setCreating] = useState(false)
+  const [workingId, setWorkingId] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -98,6 +104,7 @@ export default function Providers() {
   const handleCreate = async () => {
     if (!form.name.trim()) return
     setCreating(true)
+    setError('')
     try {
       await providersApi.create(form)
       setForm({ name: '', baseUrl: '', authType: 'apiKey' })
@@ -111,20 +118,28 @@ export default function Providers() {
   }
 
   const handleDelete = async (id: string) => {
+    setWorkingId(id)
+    setError('')
     try {
       await providersApi.delete(id)
       setProviders((p) => p.filter((x) => x._id !== id))
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to delete provider')
+    } finally {
+      setWorkingId(null)
     }
   }
 
   const handleToggle = async (id: string, status: 'active' | 'inactive') => {
+    setWorkingId(id)
+    setError('')
     try {
       const updated = await providersApi.update(id, { status })
       setProviders((p) => p.map((x) => x._id === id ? { ...x, ...updated } : x))
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to update provider')
+    } finally {
+      setWorkingId(null)
     }
   }
 
@@ -149,11 +164,7 @@ export default function Providers() {
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800/50">
-          {error}
-        </div>
-      )}
+      <ErrorMessage message={error} onRetry={load} />
 
       <AnimatePresence>
         {showForm && isAdmin && (
@@ -187,7 +198,7 @@ export default function Providers() {
               </div>
               <div className="mt-3 flex gap-2">
                 <button onClick={handleCreate} disabled={creating} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60">
-                  {creating ? 'Adding…' : 'Add Provider'}
+                  {creating ? <Spinner label="Adding" /> : 'Add Provider'}
                 </button>
                 <button onClick={() => setShowForm(false)} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
                   Cancel
@@ -199,21 +210,19 @@ export default function Providers() {
       </AnimatePresence>
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />)}
-        </div>
+        <SkeletonGrid />
       ) : providers.length === 0 ? (
         <Card>
-          <div className="flex flex-col items-center py-10 text-center">
-            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">No providers configured</p>
-            <p className="mt-1 text-xs text-zinc-500">{isAdmin ? 'Add your first provider to get started.' : 'No providers have been added yet.'}</p>
-          </div>
+          <EmptyState
+            title="No providers configured"
+            description={isAdmin ? 'Add your first provider to get started.' : 'No providers have been added yet.'}
+          />
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {providers.map((p) => (
             <motion.div key={p._id} layout>
-              <ProviderCard provider={p} onDelete={handleDelete} onToggle={handleToggle} isAdmin={isAdmin} />
+              <ProviderCard provider={p} onDelete={handleDelete} onToggle={handleToggle} isAdmin={isAdmin} working={workingId === p._id} />
             </motion.div>
           ))}
         </div>

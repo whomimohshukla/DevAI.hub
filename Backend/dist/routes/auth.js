@@ -6,4 +6,5 @@ const auth_controller_1 = require("../controllers/auth.controller");
 const router = (0, express_1.Router)();
 router.post("/register", (0, asyncHandler_1.asyncHandler)(auth_controller_1.register));
 router.post("/login", (0, asyncHandler_1.asyncHandler)(auth_controller_1.login));
+router.post("/google", (0, asyncHandler_1.asyncHandler)(auth_controller_1.googleAuth));
 exports.default = router;

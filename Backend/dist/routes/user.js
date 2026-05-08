@@ -6,4 +6,7 @@ const asyncHandler_1 = require("../middleware/asyncHandler");
 const user_controller_1 = require("../controllers/user.controller");
 const router = (0, express_1.Router)();
 router.get("/me", auth_1.apiKeyAuth, (0, asyncHandler_1.asyncHandler)(user_controller_1.getMe));
+router.put("/me", auth_1.apiKeyAuth, (0, asyncHandler_1.asyncHandler)(user_controller_1.updateMe));
+router.post("/change-password", auth_1.apiKeyAuth, (0, asyncHandler_1.asyncHandler)(user_controller_1.changePassword));
+router.delete("/me", auth_1.apiKeyAuth, (0, asyncHandler_1.asyncHandler)(user_controller_1.deleteMe));
 exports.default = router;
